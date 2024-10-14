@@ -14,13 +14,11 @@ const SECRET_TOKEN = 'Bearer Fox';
 
 // Define the structure of the data you expect
 interface DataItem {
-  // Define your properties here
-  // Example properties:
-  id: number;
-  name: string;
+  id: number; // Example property
+  name: string; // Example property
 }
 
-const checkToken = (req: Request) => {
+const checkToken = (req: Request): boolean => {
   const token = req.headers.get('Authorization');
   return token === SECRET_TOKEN;
 };
@@ -32,16 +30,16 @@ export async function POST(req: Request) {
 
   const newData: DataItem = await req.json(); // Specify the expected type
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         console.error('Error reading file:', err);
         return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500 }));
       }
 
-      let currentData: DataItem[] = [];
+      let currentData: DataItem[];
       try {
-        currentData = JSON.parse(data);
+        currentData = JSON.parse(data) as DataItem[];
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
         return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500 }));
@@ -69,7 +67,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
   }
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500 }));
@@ -77,7 +75,7 @@ export async function GET(req: Request) {
 
       let jsonData: DataItem[];
       try {
-        jsonData = JSON.parse(data || '[]'); // Specify the expected type
+        jsonData = JSON.parse(data || '[]') as DataItem[]; // Ensure correct type
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
         return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500 }));
