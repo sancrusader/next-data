@@ -9,7 +9,20 @@ if (!fs.existsSync(filePath)) {
   fs.writeFileSync(filePath, JSON.stringify([])); // Inisialisasi file dengan array kosong
 }
 
+// Token yang telah ditentukan
+const SECRET_TOKEN = 'Bearer Fox'; // Ganti dengan token yang Anda inginkan
+
+// Fungsi untuk memeriksa keberadaan token
+const checkToken = (req: Request) => {
+  const token = req.headers.get('Authorization');
+  return token === SECRET_TOKEN;
+};
+
 export async function POST(req: Request) {
+  if (!checkToken(req)) {
+    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+  }
+
   const newData = await req.json();
 
   return new Promise((resolve) => {
@@ -27,12 +40,11 @@ export async function POST(req: Request) {
         return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500 }));
       }
 
-      // Jika currentData bukan array, inisialisasi menjadi array kosong
       if (!Array.isArray(currentData)) {
         currentData = [];
       }
 
-      currentData.push(newData); // Tambahkan data baru
+      currentData.push(newData);
 
       fs.writeFile(filePath, JSON.stringify(currentData, null, 2), (writeErr) => {
         if (writeErr) {
@@ -45,7 +57,11 @@ export async function POST(req: Request) {
   });
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  if (!checkToken(req)) {
+    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+  }
+
   return new Promise((resolve) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {

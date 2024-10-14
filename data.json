@@ -10,5 +10,9 @@
   {
     "name": "Jane Doe",
     "email": "jansasase@example.com"
+  },
+  {
+    "name": "example",
+    "value": 123
   }
 ]
