@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
 export async function OPTIONS() {
-    const response = NextResponse.json({});
+    const response = NextResponse.json({ message: 'CORS preflight request successful' });
     response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
     response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+    response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); // Tambahkan X-Requested-With
     return response;
 }
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         // Tambahkan header CORS
         response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); // Tambahkan X-Requested-With
 
         return response;
     } catch (error) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         // Tambahkan header CORS pada respons error juga
         response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); // Tambahkan X-Requested-With pada respons error
 
         return response;
     }
