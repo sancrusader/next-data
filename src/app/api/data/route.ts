@@ -1,16 +1,23 @@
 import { NextResponse } from 'next/server';
 
+export async function OPTIONS() {
+    const response = NextResponse.json({});
+    response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
+    response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+    return response;
+}
+
 export async function POST(request: Request) {
     try {
         const data = await request.json(); // Ambil data JSON dari request
 
         console.log('Data diterima:', data); // Debugging
 
-        // Kembalikan respons dengan header CORS
         const response = NextResponse.json({ message: 'Data berhasil disimpan.', data });
 
         // Tambahkan header CORS
-        response.headers.append('Access-Control-Allow-Origin', '*'); // Gantilah '*' dengan origin spesifik jika perlu
+        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
         response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -20,7 +27,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ message: 'Gagal menyimpan data.', error: (error as Error).message }, { status: 500 });
         
         // Tambahkan header CORS pada respons error juga
-        response.headers.append('Access-Control-Allow-Origin', '*'); // Gantilah '*' dengan origin spesifik jika perlu
+        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
         response.headers.append('Access-Control-Allow-Headers', 'Content-Type');
 
