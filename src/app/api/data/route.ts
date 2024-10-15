@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
 export async function OPTIONS() {
     const response = NextResponse.json({ message: 'CORS preflight request successful' });
@@ -13,6 +15,23 @@ export async function POST(request: Request) {
         const data = await request.json(); // Ambil data JSON dari request
 
         console.log('Data diterima:', data); // Debugging
+
+        // Menyimpan data ke dalam data.json tanpa mengganti data sebelumnya
+        const filePath = path.join(process.cwd(), 'data.json'); // Tentukan path untuk menyimpan file
+        
+        let existingData = []; // Array untuk menyimpan data yang ada
+
+        // Cek apakah file sudah ada
+        if (fs.existsSync(filePath)) {
+            const fileContent = fs.readFileSync(filePath, 'utf-8'); // Baca isi file
+            existingData = JSON.parse(fileContent); // Parse isi file menjadi array
+        }
+
+        // Tambahkan data baru ke existingData
+        existingData.push(data);
+
+        // Simpan kembali data ke file
+        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2)); // Simpan data ke file JSON
 
         const response = NextResponse.json({ message: 'Data berhasil disimpan.', data });
 
