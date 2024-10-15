@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import Cors from 'cors';
 
 const filePath = path.join(process.cwd(), 'data.json');
 
@@ -19,35 +18,30 @@ interface DataItem {
   name: string; // Example property
 }
 
-// Initialize CORS middleware
-const cors = Cors({
-  methods: ['GET', 'POST', 'OPTIONS'], // Allowed methods
-  origin: '*', // Ganti '*' dengan URL yang ingin kamu izinkan
-  allowedHeaders: ['Content-Type', 'Authorization'], // Headers yang diizinkan
-});
-
-// Function to run CORS
-const runCors = (req: Request) => {
-  return new Promise((resolve, reject) => {
-    cors(req, NextResponse, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
-    });
-  });
-};
-
 const checkToken = (req: Request): boolean => {
   const token = req.headers.get('Authorization');
   return token === SECRET_TOKEN;
 };
 
-export async function POST(req: Request) {
-  await runCors(req); // Menjalankan middleware CORS
+// Function to handle CORS headers
+const setCorsHeaders = () => {
+  return {
+    'Access-Control-Allow-Origin': '*', // Change '*' to the actual origin in production
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+};
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: setCorsHeaders(),
+  });
+}
+
+export async function POST(req: Request) {
   if (!checkToken(req)) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ message: 'Forbidden' }, { status: 403, headers: setCorsHeaders() });
   }
 
   const newData: DataItem = await req.json(); // Specify the expected type
@@ -56,7 +50,7 @@ export async function POST(req: Request) {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         console.error('Error reading file:', err);
-        return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500 }));
+        return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500, headers: setCorsHeaders() }));
       }
 
       let currentData: DataItem[];
@@ -64,7 +58,7 @@ export async function POST(req: Request) {
         currentData = JSON.parse(data) as DataItem[];
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
-        return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500 }));
+        return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500, headers: setCorsHeaders() }));
       }
 
       if (!Array.isArray(currentData)) {
@@ -76,25 +70,23 @@ export async function POST(req: Request) {
       fs.writeFile(filePath, JSON.stringify(currentData, null, 2), (writeErr) => {
         if (writeErr) {
           console.error('Error writing file:', writeErr);
-          return resolve(NextResponse.json({ message: 'Error saving data' }, { status: 500 }));
+          return resolve(NextResponse.json({ message: 'Error saving data' }, { status: 500, headers: setCorsHeaders() }));
         }
-        resolve(NextResponse.json({ message: 'Data saved successfully', data: newData }));
+        resolve(NextResponse.json({ message: 'Data saved successfully', data: newData }, { headers: setCorsHeaders() }));
       });
     });
   });
 }
 
 export async function GET(req: Request) {
-  await runCors(req); // Menjalankan middleware CORS
-
   if (!checkToken(req)) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ message: 'Forbidden' }, { status: 403, headers: setCorsHeaders() });
   }
 
   return new Promise<NextResponse>((resolve) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500 }));
+        return resolve(NextResponse.json({ message: 'Error reading data' }, { status: 500, headers: setCorsHeaders() }));
       }
 
       let jsonData: DataItem[];
@@ -102,10 +94,10 @@ export async function GET(req: Request) {
         jsonData = JSON.parse(data || '[]') as DataItem[]; // Ensure correct type
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
-        return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500 }));
+        return resolve(NextResponse.json({ message: 'Error parsing data' }, { status: 500, headers: setCorsHeaders() }));
       }
-      
-      resolve(NextResponse.json(jsonData));
+
+      resolve(NextResponse.json(jsonData, { headers: setCorsHeaders() }));
     });
   });
 }
