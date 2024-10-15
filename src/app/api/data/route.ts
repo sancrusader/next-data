@@ -1,25 +1,19 @@
-import fs from 'fs';
-import path from 'path';
+import { NextResponse } from 'next/server';
 
-export default function handler(req, res) {
-    if (req.method === 'POST') {
-        // Ambil data dari request
-        const data = req.body;
+export async function POST(request: Request) {
+    try {
+        const data = await request.json(); // Ambil data JSON dari request
 
-        // Path untuk menyimpan file JSON
-        const filePath = path.join(process.cwd(), 'data.json');
+        // Simpan data ke file JSON (opsional)
+        // Jika ingin menyimpan, kamu perlu menggunakan fs dari Node.js, tapi ingat bahwa Vercel tidak mendukung penyimpanan di disk
+        // Simpan ke database atau tempat penyimpanan lain jika perlu
 
-        // Simpan data ke file JSON (Jika diperlukan)
-        fs.writeFile(filePath, JSON.stringify(data, null, 2), (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Gagal menyimpan data.', error: err.message });
-            }
+        console.log('Data diterima:', data); // Untuk debugging
 
-            return res.status(200).json({ message: 'Data berhasil disimpan.', data });
-        });
-    } else {
-        // Menangani method selain POST
-        res.setHeader('Allow', ['POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        // Kembalikan respons
+        return NextResponse.json({ message: 'Data berhasil disimpan.', data });
+    } catch (error) {
+        console.error('Error:', error);
+        return NextResponse.json({ message: 'Gagal menyimpan data.', error: error.message }, { status: 500 });
     }
 }
