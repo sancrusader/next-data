@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import Cors from 'cors';
 
 const filePath = path.join(process.cwd(), 'data.json');
 
@@ -18,12 +19,33 @@ interface DataItem {
   name: string; // Example property
 }
 
+// Initialize CORS middleware
+const cors = Cors({
+  methods: ['GET', 'POST', 'OPTIONS'], // Allowed methods
+  origin: '*', // Ganti '*' dengan URL yang ingin kamu izinkan
+  allowedHeaders: ['Content-Type', 'Authorization'], // Headers yang diizinkan
+});
+
+// Function to run CORS
+const runCors = (req: Request) => {
+  return new Promise((resolve, reject) => {
+    cors(req, NextResponse, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+};
+
 const checkToken = (req: Request): boolean => {
   const token = req.headers.get('Authorization');
   return token === SECRET_TOKEN;
 };
 
 export async function POST(req: Request) {
+  await runCors(req); // Menjalankan middleware CORS
+
   if (!checkToken(req)) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
   }
@@ -63,6 +85,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  await runCors(req); // Menjalankan middleware CORS
+
   if (!checkToken(req)) {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
   }
