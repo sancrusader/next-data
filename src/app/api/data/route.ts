@@ -4,16 +4,14 @@ export async function POST(request: Request) {
     try {
         const data = await request.json(); // Ambil data JSON dari request
 
-        // Simpan data ke file JSON (opsional)
-        // Jika ingin menyimpan, kamu perlu menggunakan fs dari Node.js, tapi ingat bahwa Vercel tidak mendukung penyimpanan di disk
-        // Simpan ke database atau tempat penyimpanan lain jika perlu
-
+        // Di sini kamu bisa menambahkan logika untuk menyimpan data ke database
         console.log('Data diterima:', data); // Untuk debugging
 
-        // Kembalikan respons
+        // Kembalikan respons sukses
         return NextResponse.json({ message: 'Data berhasil disimpan.', data });
     } catch (error) {
+        // Menggunakan type assertion untuk menganggap error sebagai Error
         console.error('Error:', error);
-        return NextResponse.json({ message: 'Gagal menyimpan data.', error: error.message }, { status: 500 });
+        return NextResponse.json({ message: 'Gagal menyimpan data.', error: (error as Error).message }, { status: 500 });
     }
 }
