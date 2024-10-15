@@ -16,9 +16,9 @@ export async function POST(request: Request) {
 
         console.log('Data diterima:', data); // Debugging
 
-        // Menyimpan data ke dalam data.json tanpa mengganti data sebelumnya
-        const filePath = path.join(process.cwd(), 'data.json'); // Tentukan path untuk menyimpan file
-        
+        // Tentukan path untuk menyimpan file
+        const filePath = path.join(process.cwd(), 'data.json'); 
+
         let existingData = []; // Array untuk menyimpan data yang ada
 
         // Cek apakah file sudah ada
@@ -36,19 +36,20 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ message: 'Data berhasil disimpan.', data });
 
         // Tambahkan header CORS
-        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
+        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); 
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); // Tambahkan X-Requested-With
+        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); 
 
         return response;
     } catch (error) {
         console.error('Error:', error);
-        const response = NextResponse.json({ message: 'Gagal menyimpan data.', error: (error as Error).message }, { status: 500 });
-        
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'; // Ambil pesan error
+        const response = NextResponse.json({ message: 'Gagal menyimpan data.', error: errorMessage }, { status: 500 });
+
         // Tambahkan header CORS pada respons error juga
-        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); // Ganti ini dengan origin yang diizinkan
+        response.headers.append('Access-Control-Allow-Origin', 'http://192.168.1.15:8000'); 
         response.headers.append('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); // Tambahkan X-Requested-With pada respons error
+        response.headers.append('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With'); 
 
         return response;
     }
